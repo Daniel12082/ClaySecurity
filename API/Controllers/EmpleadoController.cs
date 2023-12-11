@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class EmpleadoController: ApiBaseController
+namespace API.Controllers
+{
+    public class EmpleadoController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,10 +22,10 @@ public class EmpleadoController: ApiBaseController
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Empleado>>> Get()
+        public async Task<ActionResult<IEnumerable<EmpleadoDto>>> Get11()
         {
-            var entidades = await _unitOfWork.Empleados.GetAllAsync();
-            return _mapper.Map<List<Empleado>>(entidades);
+            var Empleados = await _unitOfWork.Empleado.GetAllAsync();
+            return _mapper.Map<List<EmpleadoDto>>(Empleados);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +34,43 @@ public class EmpleadoController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<EmpleadoDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.Empleados.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<EmpleadoDto>(entidad);
+            var Empleado = await _unitOfWork.Empleado.GetByIdAsync(id);
+            if (Empleado == null)
+                return NotFound(new ApiResponse(404, "El Empleado solicitado no existe."));
+
+            return _mapper.Map<EmpleadoDto>(Empleado);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Empleado>> Post(EmpleadoDto EmpleadoDto)
         {
-            var entidad = _mapper.Map<Empleado>(EmpleadoDto);
-            this._unitOfWork.Empleados.Add(entidad);
+            var Empleado = _mapper.Map<Empleado>(EmpleadoDto);
+            _unitOfWork.Empleado.Add(Empleado);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            EmpleadoDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = EmpleadoDto.Id}, EmpleadoDto);
+            if (Empleado == null)
+                return BadRequest(new ApiResponse(400));
+
+            EmpleadoDto.Id = Empleado.Id;
+            return CreatedAtAction(nameof(Post), new { id = EmpleadoDto.Id }, EmpleadoDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<EmpleadoDto>> Put(int id, [FromBody] EmpleadoDto EmpleadoDto)
         {
-            if(EmpleadoDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<Empleado>(EmpleadoDto);
-            _unitOfWork.Empleados.Update(entidades);
+            if (EmpleadoDto == null)
+                return NotFound(new ApiResponse(404, "El Empleado solicitado no existe."));
+
+            var EmpleadoBd = await _unitOfWork.Empleado.GetByIdAsync(id);
+            if (EmpleadoBd == null)
+                return NotFound(new ApiResponse(404, "El Empleado solicitado no existe."));
+
+            var Empleado = _mapper.Map<Empleado>(EmpleadoDto);
+            _unitOfWork.Empleado.Update(Empleado);
             await _unitOfWork.SaveAsync();
             return EmpleadoDto;
         }
@@ -80,13 +80,30 @@ public class EmpleadoController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.Empleados.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Empleados.Delete(entidad);
+            var Empleado = await _unitOfWork.Empleado.GetByIdAsync(id);
+            if (Empleado == null)
+                return NotFound(new ApiResponse(404, "El Empleado solicitado no existe."));
+
+            _unitOfWork.Empleado.Delete(Empleado);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
+        [HttpGet("GetAllEmpleado")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<EmpleadoDto>>> GetAllEmpleado()
+        {
+            var Empleado = await _unitOfWork.Empleado.GetAllEmpleados();
+            return _mapper.Map<List<EmpleadoDto>>(Empleado);
+        }
+        [HttpGet("GetEmpleadoVigilant")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<EmpleadoDto>>> GetEmpleadoVigilant()
+        {
+            var Empleado = await _unitOfWork.Empleado.GetEmpleadosVigilant();
+            return _mapper.Map<List<EmpleadoDto>>(Empleado);
+        }
     }
+}

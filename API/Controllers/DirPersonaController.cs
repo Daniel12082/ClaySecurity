@@ -37,7 +37,7 @@ namespace API.Controllers
         {
             var DirPersona = await _unitOfWork.DirPersonas.GetByIdAsync(id);
             if (DirPersona == null)
-                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+                return NotFound(new ApiResponse(404, "El DirPersona solicitado no existe."));
 
             return _mapper.Map<DirPersonaDto>(DirPersona);
         }
@@ -45,7 +45,7 @@ namespace API.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<DirPersona>> Post( DirPersonaDto)
+        public async Task<ActionResult<DirPersona>> Post(DirPersonaDto DirPersonaDto)
         {
             var DirPersona = _mapper.Map<DirPersona>(DirPersonaDto);
             _unitOfWork.DirPersonas.Add(DirPersona);
@@ -61,14 +61,14 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<DirPersonaAddUpdateDto>> Put(int id, [FromBody] DirPersonaAddUpdateDto DirPersonaDto)
+        public async Task<ActionResult<DirPersonaDto>> Put(int id, [FromBody] DirPersonaDto DirPersonaDto)
         {
             if (DirPersonaDto == null)
-                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+                return NotFound(new ApiResponse(404, "El DirPersona solicitado no existe."));
 
             var DirPersonaBd = await _unitOfWork.DirPersonas.GetByIdAsync(id);
             if (DirPersonaBd == null)
-                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+                return NotFound(new ApiResponse(404, "El DirPersona solicitado no existe."));
 
             var DirPersona = _mapper.Map<DirPersona>(DirPersonaDto);
             _unitOfWork.DirPersonas.Update(DirPersona);
@@ -83,13 +83,12 @@ namespace API.Controllers
         {
             var DirPersona = await _unitOfWork.DirPersonas.GetByIdAsync(id);
             if (DirPersona == null)
-                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+                return NotFound(new ApiResponse(404, "El DirPersona solicitado no existe."));
 
-            _unitOfWork.DirPersonas.Remove(DirPersona);
+            _unitOfWork.DirPersonas.Delete(DirPersona);
             await _unitOfWork.SaveAsync();
 
             return NoContent();
         }
     }
 }
-

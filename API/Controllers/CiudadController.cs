@@ -1,15 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class CiudadController: ApiBaseController
+namespace API.Controllers
+{
+    public class CiudadController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -19,14 +18,13 @@ public class CiudadController: ApiBaseController
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Ciudad>>> Get()
+        public async Task<ActionResult<IEnumerable<CiudadDto>>> Get11()
         {
-            var entidades = await _unitOfWork.Ciudads.GetAllAsync();
-            return _mapper.Map<List<Ciudad>>(entidades);
+            var Ciudads = await _unitOfWork.Ciudads.GetAllAsync();
+            return _mapper.Map<List<CiudadDto>>(Ciudads);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +33,43 @@ public class CiudadController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CiudadDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.Ciudads.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<CiudadDto>(entidad);
+            var Ciudad = await _unitOfWork.Ciudads.GetByIdAsync(id);
+            if (Ciudad == null)
+                return NotFound(new ApiResponse(404, "El Ciudad solicitado no existe."));
+
+            return _mapper.Map<CiudadDto>(Ciudad);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Ciudad>> Post(CiudadDto CiudadDto)
         {
-            var entidad = _mapper.Map<Ciudad>(CiudadDto);
-            this._unitOfWork.Ciudads.Add(entidad);
+            var Ciudad = _mapper.Map<Ciudad>(CiudadDto);
+            _unitOfWork.Ciudads.Add(Ciudad);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            CiudadDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = CiudadDto.Id}, CiudadDto);
+            if (Ciudad == null)
+                return BadRequest(new ApiResponse(400));
+
+            CiudadDto.Id = Ciudad.Id;
+            return CreatedAtAction(nameof(Post), new { id = CiudadDto.Id }, CiudadDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CiudadDto>> Put(int id, [FromBody] CiudadDto CiudadDto)
         {
-            if(CiudadDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<Ciudad>(CiudadDto);
-            _unitOfWork.Ciudads.Update(entidades);
+            if (CiudadDto == null)
+                return NotFound(new ApiResponse(404, "El Ciudad solicitado no existe."));
+
+            var CiudadBd = await _unitOfWork.Ciudads.GetByIdAsync(id);
+            if (CiudadBd == null)
+                return NotFound(new ApiResponse(404, "El Ciudad solicitado no existe."));
+
+            var Ciudad = _mapper.Map<Ciudad>(CiudadDto);
+            _unitOfWork.Ciudads.Update(Ciudad);
             await _unitOfWork.SaveAsync();
             return CiudadDto;
         }
@@ -80,13 +79,14 @@ public class CiudadController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.Ciudads.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Ciudads.Delete(entidad);
+            var Ciudad = await _unitOfWork.Ciudads.GetByIdAsync(id);
+            if (Ciudad == null)
+                return NotFound(new ApiResponse(404, "El Ciudad solicitado no existe."));
+
+            _unitOfWork.Ciudads.Delete(Ciudad);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }
+}

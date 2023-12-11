@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class ContratoController: ApiBaseController
+namespace API.Controllers
+{
+    [Authorize(Roles = "Employee")]
+    public class ContratoController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,10 +23,10 @@ public class ContratoController: ApiBaseController
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Contrato>>> Get()
+        public async Task<ActionResult<IEnumerable<ContratoDto>>> Get11()
         {
-            var entidades = await _unitOfWork.Contratos.GetAllAsync();
-            return _mapper.Map<List<Contrato>>(entidades);
+            var Contratos = await _unitOfWork.Contratos.GetAllAsync();
+            return _mapper.Map<List<ContratoDto>>(Contratos);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +35,43 @@ public class ContratoController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ContratoDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.Contratos.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<ContratoDto>(entidad);
+            var Contrato = await _unitOfWork.Contratos.GetByIdAsync(id);
+            if (Contrato == null)
+                return NotFound(new ApiResponse(404, "El Contrato solicitado no existe."));
+
+            return _mapper.Map<ContratoDto>(Contrato);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Contrato>> Post(ContratoDto ContratoDto)
         {
-            var entidad = _mapper.Map<Contrato>(ContratoDto);
-            this._unitOfWork.Contratos.Add(entidad);
+            var Contrato = _mapper.Map<Contrato>(ContratoDto);
+            _unitOfWork.Contratos.Add(Contrato);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            ContratoDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = ContratoDto.Id}, ContratoDto);
+            if (Contrato == null)
+                return BadRequest(new ApiResponse(400));
+
+            ContratoDto.Id = Contrato.Id;
+            return CreatedAtAction(nameof(Post), new { id = ContratoDto.Id }, ContratoDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ContratoDto>> Put(int id, [FromBody] ContratoDto ContratoDto)
         {
-            if(ContratoDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<Contrato>(ContratoDto);
-            _unitOfWork.Contratos.Update(entidades);
+            if (ContratoDto == null)
+                return NotFound(new ApiResponse(404, "El Contrato solicitado no existe."));
+
+            var ContratoBd = await _unitOfWork.Contratos.GetByIdAsync(id);
+            if (ContratoBd == null)
+                return NotFound(new ApiResponse(404, "El Contrato solicitado no existe."));
+
+            var Contrato = _mapper.Map<Contrato>(ContratoDto);
+            _unitOfWork.Contratos.Update(Contrato);
             await _unitOfWork.SaveAsync();
             return ContratoDto;
         }
@@ -80,13 +81,14 @@ public class ContratoController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.Contratos.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Contratos.Delete(entidad);
+            var Contrato = await _unitOfWork.Contratos.GetByIdAsync(id);
+            if (Contrato == null)
+                return NotFound(new ApiResponse(404, "El Contrato solicitado no existe."));
+
+            _unitOfWork.Contratos.Delete(Contrato);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }
+}

@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class ContactoPerController: ApiBaseController
+namespace API.Controllers
+{
+    [Authorize(Roles = "Employee")]
+    public class ContactoPerController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,10 +23,10 @@ public class ContactoPerController: ApiBaseController
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ContactoPer>>> Get()
+        public async Task<ActionResult<IEnumerable<ContactoPerDto>>> Get11()
         {
-            var entidades = await _unitOfWork.ContactoPers.GetAllAsync();
-            return _mapper.Map<List<ContactoPer>>(entidades);
+            var ContactoPers = await _unitOfWork.ContactoPers.GetAllAsync();
+            return _mapper.Map<List<ContactoPerDto>>(ContactoPers);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +35,43 @@ public class ContactoPerController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ContactoPerDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.ContactoPers.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<ContactoPerDto>(entidad);
+            var ContactoPer = await _unitOfWork.ContactoPers.GetByIdAsync(id);
+            if (ContactoPer == null)
+                return NotFound(new ApiResponse(404, "El ContactoPer solicitado no existe."));
+
+            return _mapper.Map<ContactoPerDto>(ContactoPer);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ContactoPer>> Post(ContactoPerDto ContactoPerDto)
         {
-            var entidad = _mapper.Map<ContactoPer>(ContactoPerDto);
-            this._unitOfWork.ContactoPers.Add(entidad);
+            var ContactoPer = _mapper.Map<ContactoPer>(ContactoPerDto);
+            _unitOfWork.ContactoPers.Add(ContactoPer);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            ContactoPerDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = ContactoPerDto.Id}, ContactoPerDto);
+            if (ContactoPer == null)
+                return BadRequest(new ApiResponse(400));
+
+            ContactoPerDto.Id = ContactoPer.Id;
+            return CreatedAtAction(nameof(Post), new { id = ContactoPerDto.Id }, ContactoPerDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ContactoPerDto>> Put(int id, [FromBody] ContactoPerDto ContactoPerDto)
         {
-            if(ContactoPerDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<ContactoPer>(ContactoPerDto);
-            _unitOfWork.ContactoPers.Update(entidades);
+            if (ContactoPerDto == null)
+                return NotFound(new ApiResponse(404, "El ContactoPer solicitado no existe."));
+
+            var ContactoPerBd = await _unitOfWork.ContactoPers.GetByIdAsync(id);
+            if (ContactoPerBd == null)
+                return NotFound(new ApiResponse(404, "El ContactoPer solicitado no existe."));
+
+            var ContactoPer = _mapper.Map<ContactoPer>(ContactoPerDto);
+            _unitOfWork.ContactoPers.Update(ContactoPer);
             await _unitOfWork.SaveAsync();
             return ContactoPerDto;
         }
@@ -80,13 +81,14 @@ public class ContactoPerController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.ContactoPers.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.ContactoPers.Delete(entidad);
+            var ContactoPer = await _unitOfWork.ContactoPers.GetByIdAsync(id);
+            if (ContactoPer == null)
+                return NotFound(new ApiResponse(404, "El ContactoPer solicitado no existe."));
+
+            _unitOfWork.ContactoPers.Delete(ContactoPer);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }
+}

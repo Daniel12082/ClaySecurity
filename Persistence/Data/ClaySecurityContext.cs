@@ -14,24 +14,26 @@ namespace Persistence.Data
         {
         }
 
-        public DbSet<CategoriaPer> CategoriaPers { get; set; }
-        public DbSet<Ciudad> Ciudads { get; set; }
-        public DbSet<ContactoPer> ContactoPers { get; set; }
-        public DbSet<Contrato> Contratos { get; set; }
-        public DbSet<Departamento> Departamentos { get; set; }
-        public DbSet<DirPersona> DirPersonas { get; set; }
-        public DbSet<Estado> Estados { get; set; }
-        public DbSet<Pais> Paiss { get; set; }
-        public DbSet<Persona> Personas { get; set; }
-        public DbSet<Programacion> Programacions { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<Rol> Rols { get; set; }
-        public DbSet<TipoContacto> TipoContactos { get; set; }
-        public DbSet<TipoDireccion> TipoDireccions { get; set; }
-        public DbSet<TipoPersona> TipoPersonas { get; set; }
-        public DbSet<Turno> Turnos { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<UserRol> UserRols { get; set; }
+        public DbSet<CategoriaPer> CategoriaPer { get; set; }
+        public DbSet<Ciudad> Ciudad { get; set; }
+        public DbSet<ContactoPer> ContactoPer { get; set; }
+        public DbSet<Empleado> Empleado { get; set; }
+        public DbSet<Cliente> Cliente { get; set; }
+        public DbSet<Contrato> Contrato { get; set; }
+        public DbSet<Departamento> Departamento { get; set; }
+        public DbSet<DirPersona> DirPersona { get; set; }
+        public DbSet<Estado> Estado { get; set; }
+        public DbSet<Pais> Pais { get; set; }
+        public DbSet<Persona> Persona { get; set; }
+        public DbSet<Programacion> Programacion { get; set; }
+        public DbSet<RefreshToken> RefreshToken { get; set; }
+        public DbSet<Rol> Rol { get; set; }
+        public DbSet<TipoContacto> TipoContacto { get; set; }
+        public DbSet<TipoDireccion> TipoDireccion { get; set; }
+        public DbSet<TipoPersona> TipoPersona { get; set; }
+        public DbSet<Turno> Turno { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<UserRol> UserRol { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

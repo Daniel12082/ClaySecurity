@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class PersonaController: ApiBaseController
+namespace API.Controllers
+{
+    [Authorize(Roles = "Employee")]
+    public class PersonaController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,10 +23,10 @@ public class PersonaController: ApiBaseController
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Persona>>> Get()
+        public async Task<ActionResult<IEnumerable<PersonaDto>>> Get11()
         {
-            var entidades = await _unitOfWork.Personas.GetAllAsync();
-            return _mapper.Map<List<Persona>>(entidades);
+            var Personas = await _unitOfWork.Personas.GetAllAsync();
+            return _mapper.Map<List<PersonaDto>>(Personas);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +35,43 @@ public class PersonaController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<PersonaDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.Personas.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<PersonaDto>(entidad);
+            var Persona = await _unitOfWork.Personas.GetByIdAsync(id);
+            if (Persona == null)
+                return NotFound(new ApiResponse(404, "El Persona solicitado no existe."));
+
+            return _mapper.Map<PersonaDto>(Persona);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Persona>> Post(PersonaDto PersonaDto)
         {
-            var entidad = _mapper.Map<Persona>(PersonaDto);
-            this._unitOfWork.Personas.Add(entidad);
+            var Persona = _mapper.Map<Persona>(PersonaDto);
+            _unitOfWork.Personas.Add(Persona);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            PersonaDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = PersonaDto.Id}, PersonaDto);
+            if (Persona == null)
+                return BadRequest(new ApiResponse(400));
+
+            PersonaDto.Id = Persona.Id;
+            return CreatedAtAction(nameof(Post), new { id = PersonaDto.Id }, PersonaDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<PersonaDto>> Put(int id, [FromBody] PersonaDto PersonaDto)
         {
-            if(PersonaDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<Persona>(PersonaDto);
-            _unitOfWork.Personas.Update(entidades);
+            if (PersonaDto == null)
+                return NotFound(new ApiResponse(404, "El Persona solicitado no existe."));
+
+            var PersonaBd = await _unitOfWork.Personas.GetByIdAsync(id);
+            if (PersonaBd == null)
+                return NotFound(new ApiResponse(404, "El Persona solicitado no existe."));
+
+            var Persona = _mapper.Map<Persona>(PersonaDto);
+            _unitOfWork.Personas.Update(Persona);
             await _unitOfWork.SaveAsync();
             return PersonaDto;
         }
@@ -80,13 +81,14 @@ public class PersonaController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.Personas.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Personas.Delete(entidad);
+            var Persona = await _unitOfWork.Personas.GetByIdAsync(id);
+            if (Persona == null)
+                return NotFound(new ApiResponse(404, "El Persona solicitado no existe."));
+
+            _unitOfWork.Personas.Delete(Persona);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }
+}

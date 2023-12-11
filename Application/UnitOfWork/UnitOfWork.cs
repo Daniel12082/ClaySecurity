@@ -41,16 +41,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
             return _clientes;
         }
     }
-    public IEmpleado Empleados {
-        get
-        {
-            if(_empleados == null) 
-            {
-                _empleados = new EmpleadoRepository(_context);
-            }
-            return _empleados;
-        }
-    }
     public ICategoriaPer CategoriaPers {
         get
         {
@@ -209,6 +199,17 @@ public class UnitOfWork : IUnitOfWork, IDisposable
                 _users = new UserRepository(_context);
             }
             return _users;
+        }
+    }
+
+    public IEmpleado Empleado {
+        get
+        {
+            if(_empleados == null) 
+            {
+                _empleados = new EmpleadoRepository(_context);
+            }
+            return _empleados;
         }
     }
 

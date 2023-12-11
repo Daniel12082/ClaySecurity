@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class ClienteController: ApiBaseController
+namespace API.Controllers
+{
+    [Authorize(Roles = "Employee")]
+    public class ClienteController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,10 +23,10 @@ public class ClienteController: ApiBaseController
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<Cliente>>> Get()
+        public async Task<ActionResult<IEnumerable<ClienteDto>>> Get11()
         {
-            var entidades = await _unitOfWork.Clientes.GetAllAsync();
-            return _mapper.Map<List<Cliente>>(entidades);
+            var Clientes = await _unitOfWork.Clientes.GetAllAsync();
+            return _mapper.Map<List<ClienteDto>>(Clientes);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +35,43 @@ public class ClienteController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ClienteDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.Clientes.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<ClienteDto>(entidad);
+            var Cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
+            if (Cliente == null)
+                return NotFound(new ApiResponse(404, "El Cliente solicitado no existe."));
+
+            return _mapper.Map<ClienteDto>(Cliente);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Cliente>> Post(ClienteDto ClienteDto)
         {
-            var entidad = _mapper.Map<Cliente>(ClienteDto);
-            this._unitOfWork.Clientes.Add(entidad);
+            var Cliente = _mapper.Map<Cliente>(ClienteDto);
+            _unitOfWork.Clientes.Add(Cliente);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            ClienteDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = ClienteDto.Id}, ClienteDto);
+            if (Cliente == null)
+                return BadRequest(new ApiResponse(400));
+
+            ClienteDto.Id = Cliente.Id;
+            return CreatedAtAction(nameof(Post), new { id = ClienteDto.Id }, ClienteDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ClienteDto>> Put(int id, [FromBody] ClienteDto ClienteDto)
         {
-            if(ClienteDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<Cliente>(ClienteDto);
-            _unitOfWork.Clientes.Update(entidades);
+            if (ClienteDto == null)
+                return NotFound(new ApiResponse(404, "El Cliente solicitado no existe."));
+
+            var ClienteBd = await _unitOfWork.Clientes.GetByIdAsync(id);
+            if (ClienteBd == null)
+                return NotFound(new ApiResponse(404, "El Cliente solicitado no existe."));
+
+            var Cliente = _mapper.Map<Cliente>(ClienteDto);
+            _unitOfWork.Clientes.Update(Cliente);
             await _unitOfWork.SaveAsync();
             return ClienteDto;
         }
@@ -80,13 +81,14 @@ public class ClienteController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.Clientes.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Clientes.Delete(entidad);
+            var Cliente = await _unitOfWork.Clientes.GetByIdAsync(id);
+            if (Cliente == null)
+                return NotFound(new ApiResponse(404, "El Cliente solicitado no existe."));
+
+            _unitOfWork.Clientes.Delete(Cliente);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }
+}

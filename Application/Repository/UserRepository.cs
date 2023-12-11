@@ -18,7 +18,7 @@ namespace Application.Repository
 
         public async Task<User> GetByRefreshTokenAsync(string refreshToken)
         {
-            return await _context.Users
+            return await _context.User
                 .Include(u => u.Rols)
                 .Include(u => u.RefreshTokens)
                 .FirstOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
@@ -26,7 +26,7 @@ namespace Application.Repository
 
         public async Task<User> GetByUsernameAsync(string username)
         {
-            return await _context.Users
+            return await _context.User
                 .Include(u => u.Rols)
                 .Include(u => u.RefreshTokens)
                 .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
