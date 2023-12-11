@@ -1,0 +1,15 @@
+C:\Users\user\Downloads\ClaySecurity\Persistence\bin\Debug\net8.0\Persistence.deps.json
+C:\Users\user\Downloads\ClaySecurity\Persistence\bin\Debug\net8.0\Persistence.dll
+C:\Users\user\Downloads\ClaySecurity\Persistence\bin\Debug\net8.0\Persistence.pdb
+C:\Users\user\Downloads\ClaySecurity\Persistence\bin\Debug\net8.0\Domain.dll
+C:\Users\user\Downloads\ClaySecurity\Persistence\bin\Debug\net8.0\Domain.pdb
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.csproj.AssemblyReference.cache
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.AssemblyInfoInputs.cache
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.AssemblyInfo.cs
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.csproj.CoreCompileInputs.cache
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.csproj.CopyComplete
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.dll
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\refint\Persistence.dll
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\Persistence.pdb
+C:\Users\user\Downloads\ClaySecurity\Persistence\obj\Debug\net8.0\ref\Persistence.dll
