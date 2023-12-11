@@ -17,7 +17,6 @@ namespace Persistence.Data.Configuration
 
             builder.HasIndex(e => e.IdPersona).IsUnique();
 
-
             builder.Property(e => e.Nombre)
                 .IsRequired()
                 .HasMaxLength(50) 

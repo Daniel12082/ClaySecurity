@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using API.Dtos;
+using API.Helpers;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class DirPersonaController: ApiBaseController
+namespace API.Controllers
+{
+    [Authorize(Roles = "Employee")]
+    public class DirPersonaController : ApiBaseController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -23,10 +23,10 @@ public class DirPersonaController: ApiBaseController
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<DirPersona>>> Get()
+        public async Task<ActionResult<IEnumerable<DirPersonaDto>>> Get11()
         {
-            var entidades = await _unitOfWork.DirPersonas.GetAllAsync();
-            return _mapper.Map<List<DirPersona>>(entidades);
+            var DirPersonas = await _unitOfWork.DirPersonas.GetAllAsync();
+            return _mapper.Map<List<DirPersonaDto>>(DirPersonas);
         }
 
         [HttpGet("{id}")]
@@ -35,42 +35,43 @@ public class DirPersonaController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<DirPersonaDto>> Get(int id)
         {
-            var entidad = await _unitOfWork.DirPersonas.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<DirPersonaDto>(entidad);
+            var DirPersona = await _unitOfWork.DirPersonas.GetByIdAsync(id);
+            if (DirPersona == null)
+                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+
+            return _mapper.Map<DirPersonaDto>(DirPersona);
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<DirPersona>> Post(DirPersonaDto DirPersonaDto)
+        public async Task<ActionResult<DirPersona>> Post( DirPersonaDto)
         {
-            var entidad = _mapper.Map<DirPersona>(DirPersonaDto);
-            this._unitOfWork.DirPersonas.Add(entidad);
+            var DirPersona = _mapper.Map<DirPersona>(DirPersonaDto);
+            _unitOfWork.DirPersonas.Add(DirPersona);
             await _unitOfWork.SaveAsync();
-            if(entidad == null)
-            {
-                return BadRequest();
-            }
-            DirPersonaDto.Id = entidad.Id;
-            return CreatedAtAction(nameof(Post), new {id = DirPersonaDto.Id}, DirPersonaDto);
+            if (DirPersona == null)
+                return BadRequest(new ApiResponse(400));
+
+            DirPersonaDto.Id = DirPersona.Id;
+            return CreatedAtAction(nameof(Post), new { id = DirPersonaDto.Id }, DirPersonaDto);
         }
 
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<DirPersonaDto>> Put(int id, [FromBody] DirPersonaDto DirPersonaDto)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<DirPersonaAddUpdateDto>> Put(int id, [FromBody] DirPersonaAddUpdateDto DirPersonaDto)
         {
-            if(DirPersonaDto == null)
-            {
-                return NotFound();
-            }
-            var entidades = _mapper.Map<DirPersona>(DirPersonaDto);
-            _unitOfWork.DirPersonas.Update(entidades);
+            if (DirPersonaDto == null)
+                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+
+            var DirPersonaBd = await _unitOfWork.DirPersonas.GetByIdAsync(id);
+            if (DirPersonaBd == null)
+                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+
+            var DirPersona = _mapper.Map<DirPersona>(DirPersonaDto);
+            _unitOfWork.DirPersonas.Update(DirPersona);
             await _unitOfWork.SaveAsync();
             return DirPersonaDto;
         }
@@ -80,13 +81,15 @@ public class DirPersonaController: ApiBaseController
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(int id)
         {
-            var entidad = await _unitOfWork.DirPersonas.GetByIdAsync(id);
-            if(entidad == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.DirPersonas.Delete(entidad);
+            var DirPersona = await _unitOfWork.DirPersonas.GetByIdAsync(id);
+            if (DirPersona == null)
+                return NotFound(new ApiResponse(404, $"El DirPersona solicitado no existe."));
+
+            _unitOfWork.DirPersonas.Remove(DirPersona);
             await _unitOfWork.SaveAsync();
+
             return NoContent();
         }
     }
+}
+

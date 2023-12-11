@@ -11,10 +11,9 @@ namespace Domain.Entities
         public int IdContratoFk { get; set; }
         public int IdTurnosFk { get; set; }
         public int IdEmpleadoFk { get; set; }
-
         public Contrato Contrato { get; set; }
         public Turno Turnos { get; set; }
-        public Persona Empleado { get; set;}
+        public Empleado Empleado { get; set;}
         
     }
 }

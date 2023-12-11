@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,21 +19,21 @@ namespace Persistence.Data.Configuration
                 .HasColumnType("date")
                 .HasColumnName("fechaFin");
 
-            builder.HasOne(d => d.Cliente)
-                .WithMany(p => p.Contratos)
-                .HasForeignKey(d => d.IdClienteFk)
+            builder.HasOne(c => c.Cliente)
+                .WithMany(c => c.Contratos)
+                .HasForeignKey(c => c.IdClienteFk)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Contrato_Cliente");
 
-            builder.HasOne(d => d.Empleado)
-                .WithMany(p => p.Contratos)
-                .HasForeignKey(d => d.IdEmpleadoFk)
+            builder.HasOne(c => c.Empleado)
+                .WithMany(c => c.Contratos)
+                .HasForeignKey(c => c.IdEmpleadoFk)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Contrato_Empleado");
 
-            builder.HasOne(d => d.Estado)
+            builder.HasOne(c => c.Estado)
                 .WithMany(p => p.Contratos)
-                .HasForeignKey(d => d.IdEstadoFk)
+                .HasForeignKey(c => c.IdEstadoFk)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Contrato_Estado");
         }

@@ -15,8 +15,6 @@ namespace Persistence.Data.Configuration
             builder.ToTable("dirPersona");
             builder.HasKey(e => e.Id).HasName("idDirPersona");
 
-            builder.Property(e => e.IdPersonaFk).HasColumnName("idPersonaFk");
-
             builder.Property(e => e.Direccion)
                 .IsRequired()
                 .HasMaxLength(50)

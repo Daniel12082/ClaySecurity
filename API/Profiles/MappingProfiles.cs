@@ -26,6 +26,8 @@ namespace API.Profiles
             CreateMap<TipoDireccion, TipoDireccionDto>().ReverseMap();
             CreateMap<TipoPersona, TipoPersonaDto>().ReverseMap();
             CreateMap<Turno, TurnoDto>().ReverseMap();
+            CreateMap<Empleado, EmpleadoDto>().ReverseMap();
+            CreateMap<Cliente, ClienteDto>().ReverseMap();
         }
     }
 }

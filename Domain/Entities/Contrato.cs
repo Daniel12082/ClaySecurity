@@ -13,9 +13,9 @@ namespace Domain.Entities
         public int IdEstadoFk { get; set; }
         public DateOnly FechaContrato { get; set; }
         public DateOnly FechaFin { get; set; }
-        public Persona Empleado { get; set; }
-        public Persona Cliente { get; set; }
-        public Estado Estado { get; set; }
-        public ICollection<Programacion> Programaciones { get; set; }
+        public virtual Empleado Empleado { get; set; }
+        public virtual Cliente Cliente { get; set; }
+        public virtual Estado Estado { get; set; }
+        public virtual ICollection<Programacion> Programaciones { get; set; }
     }
 }

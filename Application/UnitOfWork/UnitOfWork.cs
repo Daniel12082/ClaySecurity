@@ -13,6 +13,8 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     {
         _context.Dispose();
     }
+    private ICliente _clientes;
+    private IEmpleado _empleados;
     private ICategoriaPer _categoriapers;
     private ICiudad _ciudads;
     private IContactoPer _contactopers;
@@ -23,13 +25,32 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private IPais _paiss;
     private IPersona _personas;
     private IProgramacion _programacions;
-
     private IRol _roles;
     private ITipoContacto _tipocontactos;
     private ITipoDireccion _tipodireccions;
     private ITipoPersona _tipopersonas;
     private ITurno _turnos;
     private IUser _users;
+    public ICliente Clientes {
+        get
+        {
+            if(_clientes == null) 
+            {
+                _clientes = new ClienteRepository(_context);
+            }
+            return _clientes;
+        }
+    }
+    public IEmpleado Empleados {
+        get
+        {
+            if(_empleados == null) 
+            {
+                _empleados = new EmpleadoRepository(_context);
+            }
+            return _empleados;
+        }
+    }
     public ICategoriaPer CategoriaPers {
         get
         {

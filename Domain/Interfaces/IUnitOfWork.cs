@@ -24,5 +24,7 @@ namespace Domain.Interfaces;
         ITipoPersona TipoPersonas { get; }
         ITurno Turnos { get; }
         IUser Users { get; }
+        ICliente Clientes { get; }
+        IEmpleado Empleados { get; }
         Task<int> SaveAsync();
 }
